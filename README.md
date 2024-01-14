@@ -5,7 +5,7 @@ Automatically track time spend on apps or sites, differentiate between different
 * time spent in vs code
 
 ### User Stories
-* Monitory where user is 
+* Monitor activity where user is 
     * What site/app is being used 
 * Start a timer when the user opens the app or site 
 * Save the data to Google Calendar 
