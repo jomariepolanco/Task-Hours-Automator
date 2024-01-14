@@ -14,7 +14,7 @@ class Activities:
     def get_activities(self, data):
         activities_list = []
         for act in data["activities"]:
-            activities_list.append(Activity(name=act["title"], time_entries=get_time_entries_for_activity(act["time_entires"])))
+            activities_list.append(Activity(name=act["title"], time_entries=self.get_time_entries_for_activity(act["time_entires"])))
         return activities_list
     
     def get_time_entries_for_activity(self, time_entries):
@@ -24,19 +24,19 @@ class Activities:
         self.time_entries = time_entries_list
         return time_entries_list
     
-    def seralize(self):
+    def serialize(self):
         return {"activities": self.make_activities_json()}
     
     def make_activities_json(self):
         activities = []
         for act in self.activities:
-            activities.append(act.seralize())
+            activities.append(act.serialize())
         return activities
     
 
 class Activity:
-    def __init__(self, name, time_entries):
-        self.name = name
+    def __init__(self, title, time_entries):
+        self.title = title
         self.time_entries = time_entries
     
     def make_time_entries_json(self):
@@ -46,23 +46,17 @@ class Activity:
         return time_list
     
     def serialize(self):
-        return {"title": self.name, "time_entires": self.make_time_entries_json()}
+        return {"title": self.title, "time_entires": self.make_time_entries_json()}
 
 class TimeEntry:
-    def __init__(self, time):
-        self.start_time = time["start_time"]
-        self.end_time = time["end_time"]
-        self.total_time = time["end_time"] - self["start_time"]
-        self.days = time["days"]
-        self.hours = time["hours"]
-        self.minutes = time["minutes"]
-        self.seconds = time["seconds"]
-    
-    def _get_times(self):
-        self.days, self.seconds = self.total_time.days, self.total_time.seconds
-        self.hours = self.days * 24 + self.seconds // 3600
-        self.minutes = (self.seconds % 3600) // 60
-        self.seconds = self.seconds % 60
+    def __init__(self, start_time, end_time):
+        self.start_time = start_time
+        self.end_time = end_time
+        self.total_time = end_time - start_time
+        self.days = (end_time - start_time).days
+        self.hours = (end_time - start_time).days * 24 + (end_time - start_time).seconds % 60 // 3600
+        self.seconds = (end_time - start_time).seconds % 60
+        self.minutes = (end_time - start_time).seconds % 60 // 60
     
     def serialize(self):
         return {
