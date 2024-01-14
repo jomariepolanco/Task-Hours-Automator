@@ -15,11 +15,13 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
+from activities import Activities
+
 # If modifying these scopes, delete the file token.json.
-SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"]
+SCOPES = ["https://www.googleapis.com/auth/calendar"]
 
 
-def main():
+def post_gcal_event(activity):
   """Shows basic usage of the Google Calendar API.
   Prints the start and name of the next 10 events on the user's calendar.
   """
@@ -47,32 +49,22 @@ def main():
 
     # Call the Calendar API
     now = datetime.datetime.utcnow().isoformat() + "Z"  # 'Z' indicates UTC time
-    print("Getting the upcoming 10 events")
-    events_result = (
-        service.events()
-        .list(
-            calendarId="primary",
-            timeMin=now,
-            maxResults=10,
-            singleEvents=True,
-            orderBy="startTime",
-        )
-        .execute()
-    )
-    events = events_result.get("items", [])
-
-    if not events:
-      print("No upcoming events found.")
-      return
-
-    # Prints the start and name of the next 10 events
-    for event in events:
-      start = event["start"].get("dateTime", event["start"].get("date"))
-      print(start, event["summary"])
+    print("Posting event on Calendar...")
+    for time in activity.time_entries:
+      print(f"Time: { time.start_time.strftime('%Y-%m-%dT%H:%M:%S')}")
+      event = {
+          "summary": activity.title,
+          "start": {
+              "dateTime": time.start_time.strftime("%Y-%m-%dT%H:%M:%S"),
+              "timeZone": "America/Los_Angeles",
+          },
+          "end": {
+              "dateTime": time.end_time.strftime("%Y-%m-%dT%H:%M:%S"),
+              "timeZone": "America/Los_Angeles",
+          },
+      }
+      event = service.events().insert(calendarId="primary", body=event).execute()
+      print(f"Event created: {event.get('htmlLink')}")
 
   except HttpError as error:
     print(f"An error occurred: {error}")
-
-
-if __name__ == "__main__":
-  main()

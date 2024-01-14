@@ -6,8 +6,8 @@ class Activities:
     
     def initialize(self):
         activities = Activities([])
-        with open("activities.json", "w") as f:
-            data = json.load(f)
+        with open("activities.json", "r") as json_file:
+            data = json.load(json_file)
             activities = Activities(self.get_activities(data))
         return activities
     

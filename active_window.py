@@ -5,6 +5,7 @@ import time
 import datetime
 
 from activities import Activities, TimeEntry, Activity
+from gcal import post_gcal_event
 
 active_window_name = None 
 activity_title = None 
@@ -23,6 +24,11 @@ def get_window_url():
         raise Exception(err)
                 
     return url.stringValue()
+
+try: 
+    activity_list.initialize()
+except Exception:
+    print("No activities.json file found")
 
 try:
     while True:
@@ -50,6 +56,7 @@ try:
                 if not exists:  
                     activity = Activity(activity_title, [time_entry])
                     activity_list.activities.append(activity)
+                    post_gcal_event(activity)
                 
                 with open("activities.json", "w") as json_file:
                     json.dump(activity_list.serialize(), json_file, indent=4, sort_keys=True, default=str)
@@ -62,4 +69,4 @@ try:
 
 except KeyboardInterrupt:
     with open("activities.json", "w") as json_file:
-        json.dump(activity_list.serialize(), json_file, indent=4, sort_keys=True)
+        json.dump(activity_list.serialize(), json_file, indent=4, sort_keys=True, default=str)
